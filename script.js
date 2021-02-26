@@ -64,12 +64,17 @@ const inputElevation = document.querySelector('.form__input--elevation');
 class App {
   #map;
   #mapEvent;
+  #mapZoomLevel = 14;
   #workouts = [];
 
   constructor() {
+    // Get user location
     this._getposition();
+
+    // Attach event listener
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField);
+    containerWorkouts.addEventListener('click', this._moveToPopUp.bind(this));
   }
 
   _getposition() {
@@ -97,7 +102,7 @@ class App {
     const coords = [latitude, longitude];
 
     // Leatlef Library
-    this.#map = L.map('map').setView(coords, 13);
+    this.#map = L.map('map').setView(coords, this.#mapZoomLevel);
 
     L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
       attribution:
@@ -172,7 +177,7 @@ class App {
         return alert(`Inputs have to be positive numbers`);
 
       // Generate cycling object
-      workout = new Cycling([lat, lng], distance, duration, cadence);
+      workout = new Cycling([lat, lng], distance, duration, elevation);
     }
 
     // Add new object to workouts array
@@ -248,13 +253,31 @@ class App {
       </div>
       <div class="workout__details">
         <span class="workout__icon">⛰</span>
-        <span class="workout__value">${workout.elevationGain}</span>
+        <span class="workout__value">${workout.elevation}</span>
         <span class="workout__unit">m</span>
       </div>
   </li>
       `;
 
     form.insertAdjacentHTML('afterend', html);
+  }
+
+  _moveToPopUp(e) {
+    const workoutEl = e.target.closest('.workout');
+
+    if (!workoutEl || null) return;
+
+    const workout = this.#workouts.find(
+      work => work.id === workoutEl.dataset.id
+    );
+
+    // Bult-in leaflet library
+    this.#map.setView(workout.coords, this.#mapZoomLevel, {
+      animate: true,
+      pan: {
+        duration: 1,
+      },
+    });
   }
 }
 
