@@ -97,14 +97,12 @@ class App {
   }
 
   _loadmap(position) {
-    console.log(position);
     const { latitude } = position.coords;
     const { longitude } = position.coords;
-    console.log(`https://www.google.com/maps/@${latitude},${longitude}`);
 
+    //   Leaflet Library
     const coords = [latitude, longitude];
 
-    // Leatlef Library
     this.#map = L.map('map').setView(coords, this.#mapZoomLevel);
 
     L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
@@ -237,6 +235,7 @@ class App {
         <span class="workout__value">${workout.duration}</span>
         <span class="workout__unit">min</span>
       </div>
+  
     `;
 
     if (workout.type === 'running')
@@ -296,7 +295,8 @@ class App {
 
   _getLocalStorage() {
     const data = JSON.parse(localStorage.getItem('workouts'));
-    console.log(data);
+    if (!data) return;
+
     this.#workouts = data;
 
     // Render workout items to sidebar
